@@ -7,7 +7,8 @@
 
 - [ ] add dates to generated json
 - [ ] generate RSS feed
-- [ ] post RSS feed on a daily basis
+  - note `mp_url/feed` returns the comments not the RSS feed
+- [ ] update RSS feed on a daily basis (using Github actions maybe?)
 
 ## sanity check
 
