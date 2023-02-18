@@ -18,5 +18,23 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Download mp_index
+      uses: actions/download-artifact@v3.0.2
+      with:
+        name: MP_index
+        path: mp_current_index.txt
+    - name: Check MP_index
+      run: cat mp_current_index.txt
     - name: Run
-      run: cargo run
+      run: cargo run --quiet
+    - name: Upload mp_index
+      uses: actions/upload-artifact@v3
+      with:
+        name: MP_index
+    - name: Upload mp_rss
+      uses: actions/upload-artifact@v3
+      with:
+        name: mp_rss
+        path: morning_paper_feed.xml
+    - name: Check MP_rss
+      run: cat morning_paper_feed.xml
