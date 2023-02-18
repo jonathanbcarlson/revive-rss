@@ -3,6 +3,11 @@ name: Rust
 on:
   schedule:
     - cron: "0 15 * * *"
+  workflow_dispatch:
+    inputs:
+      MPIndex:
+        description: 'Morning Paper index'
+        required: true
 env:
   CARGO_TERM_COLOR: always
 
