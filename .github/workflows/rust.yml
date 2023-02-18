@@ -24,6 +24,9 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: MP_index
+        path: mp_current_index.txt
+    - name: Check MP_index
+      run: cat mp_current_index.txt
     - name: Upload mp_rss
       uses: actions/upload-artifact@v3
       with:
