@@ -1,16 +1,25 @@
-use atom_syndication::{EntryBuilder, FeedBuilder, LinkBuilder, TextBuilder};
+use atom_syndication::{EntryBuilder, Feed, FeedBuilder, LinkBuilder, TextBuilder};
+use chrono::DateTime;
 use regex::Regex;
 use reqwest::Client;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json::{json, ser::PrettyFormatter};
-use std::fs::OpenOptions;
+use std::fs::{File, OpenOptions};
+use std::io::BufReader;
+use std::path::Path;
+use std::vec;
 use tokio;
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Deserialize)]
 struct MorningPaper {
     title: String,
     url: String,
     index: i32,
+}
+
+#[derive(Serialize, Debug, Deserialize)]
+struct MPFile {
+    morning_papers: vec::Vec<MorningPaper>,
 }
 
 #[tokio::main]
@@ -27,6 +36,7 @@ async fn create_mp_json() -> Result<(), Box<dyn std::error::Error>> {
     // TODO: add papers 1 to 44 from
     // https://blog.acolyer.org/2014/10/15/themorningpaper-reaches-50-papers/
     // from the link we also know the first is index 45
+
     let mut index = 45;
 
     let client = Client::new();
@@ -76,42 +86,110 @@ async fn create_mp_json() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn create_mp_rss() -> Result<(), Box<dyn std::error::Error>> {
-    let entry_url = LinkBuilder::default()
-        .href("https://blog.acolyer.org/2014/10/08/outperforming-lru-with-an-adaptive-replacement-cache-algorithm/".to_string())
-        .build();
-    let entry_title = TextBuilder::default()
-        .value("Outperforming LRU with an Adaptive Replacement Cache Algorithm".to_string())
-        .build();
-    let entry = EntryBuilder::default()
-        .title(entry_title)
-        .link(entry_url)
+fn create_mp_rss(
+    title: String,
+    date: String,
+    url: String,
+    output_rss_file: String,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let author = atom_syndication::PersonBuilder::default()
+        .name("Adrian Colyer".to_string())
         .build();
 
-    let link = LinkBuilder::default()
-        .href("https://blog.acolyer.org".to_string())
+    let content = atom_syndication::ContentBuilder::default()
+        .value(Some(title.to_string()))
         .build();
-    let subtitle = TextBuilder::default()
-        .value("Morning Paper written by Adrian Colyer".to_string())
+
+    let entry_url = LinkBuilder::default().href(url.to_string()).build();
+    let entry_title = TextBuilder::default().value(title.to_string()).build();
+
+    let date = DateTime::parse_from_str(&date, "%Y-%m-%dT%H:%M:%S%z").unwrap();
+
+    let entry = EntryBuilder::default()
+        .title(entry_title.clone())
+        .link(entry_url.clone())
+        .authors(vec![author.clone()])
+        .id(url.to_string())
+        .updated(date.clone())
+        .content(content.clone())
         .build();
 
     let feed = FeedBuilder::default()
         .title("Morning Paper".to_string())
-        .link(link)
-        .subtitle(subtitle)
         .entries(vec![entry])
+        .id("https://blog.acolyer.org/".to_string())
+        .updated(date)
+        .author(author)
+        .icon(
+            "https://secure.gravatar.com/blavatar/09326a066a08237015d6b84f026d36ae?s=32"
+                .to_string(),
+        )
         .build();
+
     let rss_file = OpenOptions::new()
         .create(true)
         .write(true)
-        .open("morning_paper_feed.xml")?;
+        .open(output_rss_file)?;
     feed.write_to(rss_file)?;
     Ok(())
 }
 
+fn add_entry_to_mp_rss(title: String, date: String, url: String, output_rss_file: String) -> Feed {
+    // if file exists, read it in, add entry, write it out
+    let file = File::open(output_rss_file).unwrap();
+    let mut feed = Feed::read_from(BufReader::new(file)).unwrap();
+
+    let author = atom_syndication::PersonBuilder::default()
+        .name("Adrian Colyer".to_string())
+        .build();
+
+    let content = atom_syndication::ContentBuilder::default()
+        .value(Some(title.to_string()))
+        .build();
+
+    let entry_url = LinkBuilder::default().href(url.to_string()).build();
+    let entry_title = TextBuilder::default().value(title.to_string()).build();
+
+    let date = DateTime::parse_from_str(&date, "%Y-%m-%dT%H:%M:%S%z").unwrap();
+
+    let entry = EntryBuilder::default()
+        .title(entry_title.clone())
+        .link(entry_url.clone())
+        .authors(vec![author.clone()])
+        .id(url.to_string())
+        .updated(date.clone())
+        .content(content.clone())
+        .build();
+
+    feed.entries.push(entry);
+    feed
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // TODO: only create list of titles, urls if mp.json doesn't exist
-    // create_mp_json()?;
-    create_mp_rss()?;
+    let output_rss_file = "morning_paper_feed.xml";
+    let mp_json = File::open("morning_papers.json")?;
+    let reader = BufReader::new(mp_json);
+    let mp_file: MPFile = serde_json::from_reader(reader).unwrap();
+
+    for mp in mp_file.morning_papers {
+        let title = mp.title;
+        let url = mp.url;
+        let re = Regex::new(
+            "https://blog.acolyer.org/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2}).*/",
+        )?;
+        let caps = re.captures(url.as_str()).unwrap();
+        let year = caps["year"].to_string();
+        let month = caps["month"].to_string();
+        let day = caps["day"].to_string();
+        let date = format!("{year}-{month}-{day}T00:00:00+00:00");
+        if Path::new(output_rss_file).exists() {
+            let feed = add_entry_to_mp_rss(title, date, url, output_rss_file.to_string());
+            let file = File::create(output_rss_file).unwrap();
+            feed.write_to(file)?;
+        } else {
+            create_mp_rss(title, date, url, output_rss_file.to_string())?;
+        }
+    }
+
     Ok(())
 }

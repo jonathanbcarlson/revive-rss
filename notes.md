@@ -9,6 +9,7 @@
 - [ ] generate RSS feed
   - note `mp_url/feed` returns the comments not the RSS feed
 - [ ] update RSS feed on a daily basis (using Github actions maybe?)
+  - validate RSS using [Feed validation service](https://validator.w3.org/feed/check.cgi)
 
 ## sanity check
 

@@ -1,0 +1,44 @@
+30th July 2014, “Why Functional Programming Matters,” John Hughes, 1990
+1st Aug 2014, “An Axiomatic Basis for Computer Programming,”‘ C.A.R. Hoare 1969
+4th Aug 2014, “Fundamental concepts in Programming Languages,” Christopher Strachey, 1967
+5th Aug 2014, “The Emperor’s Old Clothes,” C.A.R. Hoare, 1981
+6th Aug 2014, “On understanding types, data abstraction, and polymorphism,” Cardelli & Wegner, 1985 (part I & II)
+7th Aug 2014, “Reflections on Trusting Trust,” Thompson
+8th Aug 2014, “On the criteria to be used in decomposing a system into modules,” Parnas
+11th Aug 2014, “No Silver Bullet: Essence and Accidents of Software Engineering,” Brooks 1987
+12th Aug 2014, “A Relational model of data,” Codd
+13th – 18th Aug 2014, “Out of the Tar Pit,” Mosely and Marks
+19th Aug 2014 “Goto statement considered harmful,” Dijkstra, 1968
+20th Aug 2014, “Bitcoin, A peer-to-peer electronic cash system,” Nakomoto, 2008
+21st Aug 2014 “Hashcash – A Denial of Service Counter-Measure,” Back, 2002
+22nd Aug 2014 “Computer programming as an Art,” Knuth, 1974
+25th Aug 2014  “Time, Clocks, and the ordering of events in a distributed system,” Leslie Lamport, 1978
+26th Aug 2014 “Lisp: Good news, bad news, how to win big,” Gabriel + “Worse is Better” – recap on the above, Gabriel
+27th Aug 2014 “A note on distributed computing,” Waldo et al.
+28th Aug 2014 “Impossibility of distributed consensus in a system with one faulty process” Fischer Lynch and Paterson 1985 (FLP)
+29th Aug 2014 “The next 700 Programming languages,” Landin 1966
+1st Sept 2014 “Can programming be liberated from the von Neumann Style?,” Backus 1978
+2nd Sept 2014 “Programming as an experience: the inspiration for Self,” Ungar, Smith
+3rd Sept 2014 “Organizing Programs without Classes,” Ungar, Chambers, Chang, Holzle
+4th Sept 2014 “Recursive Functions of Symbolic Expressions and Their Computation by Machine,” McCarthy 1960
+5th Sept 2014 “EMACS: The Extensible Customizable Text Editor” Richard Stallman, 1981
+8th Sept 2014 “Equal Rights for Functional Objects or, The More Things Change, The More They are the Same,” Baker
+9th Sept 2014 “A Laboratory for teaching Object-Oriented thinking,” Beck & Cunningham
+10th & 11th Sept 2014  “On Designing and Deploying Internet Scale Services” – James Hamilton
+15th Sept 2014 “The 5 minute rule”, Gray 1986
+16th Sept 2014 “The 5 minute rule 10 yrs later”, Gray & Graefe 1997
+17th Sept 2014 “The 5 minute rule 20 yrs later,” Graefe 2007
+18th Sept 2014 “Dynamo, Amazon’s Highly Available Key-value store” 2007
+19th Sept 2014 “Goes Around Comes Around” Stonebraker & Hellerstein 2005
+22nd Sept 2014 “Merkle Signature Schemes, Merkle Trees, and their Cryptanalysis” 2008
+23rd Sept 2014 “An experimental evaluation of the assumption of independence in multiversion programming,” Knight and Leveson ’77
+24th Sept 2014 “Data on the outside vs Data on the inside” Helland 2005
+25th Sept 2014 “Arguments and Results,” Noble ’97
+26th Sept 2014 “Predicate Dispatch, A Unified Theory of Dispatch,” Ernst, Kaplan, & Chambers
+29th Sept 2014 “NP-complete problems and physical reality” – Aaronson ’05
+30th Sept 2014 “Eventual Consistency Today” – Bailis & Ghodsi 2013
+1st Oct 2014 “Harvest, Yield, and Scalable Tolerant Systems” Fox & Brewer ’99
+2nd Oct 2014 “The curse of the excluded middle” – Meijer 2014
+3rd Oct 2014 “Quasar: Resource-aware and QoS Efficient Cluster Management” – Demilitrou 2014
+6th Oct 2014 “The Zettabyte File System”, Bonwick et al. 2002
+7th Oct 2014 “OSv – Optimizing the Operating System for Virtual Machines”, Kivity et al. 2014
