@@ -4,9 +4,9 @@ use regex::Regex;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, ser::PrettyFormatter};
-use std::fs::{File, OpenOptions};
-use std::io::BufReader;
-use std::path::Path;
+use std::fmt;
+use std::fs::{read_to_string, write, File, OpenOptions};
+use std::io::{BufReader, Write};
 use std::vec;
 use tokio;
 
@@ -15,6 +15,12 @@ struct MorningPaper {
     title: String,
     url: String,
     index: i32,
+}
+
+impl fmt::Display for MorningPaper {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}, {}, {}", self.index, self.title, self.url)
+    }
 }
 
 #[derive(Serialize, Debug, Deserialize)]
@@ -126,10 +132,7 @@ fn create_mp_rss(
         )
         .build();
 
-    let rss_file = OpenOptions::new()
-        .create(true)
-        .write(true)
-        .open(output_rss_file)?;
+    let rss_file = File::create(output_rss_file.clone())?;
     feed.write_to(rss_file)?;
     Ok(())
 }
@@ -171,25 +174,34 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let reader = BufReader::new(mp_json);
     let mp_file: MPFile = serde_json::from_reader(reader).unwrap();
 
-    for mp in mp_file.morning_papers {
-        let title = mp.title;
-        let url = mp.url;
-        let re = Regex::new(
-            "https://blog.acolyer.org/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2}).*/",
-        )?;
-        let caps = re.captures(url.as_str()).unwrap();
-        let year = caps["year"].to_string();
-        let month = caps["month"].to_string();
-        let day = caps["day"].to_string();
-        let date = format!("{year}-{month}-{day}T00:00:00+00:00");
-        if Path::new(output_rss_file).exists() {
-            let feed = add_entry_to_mp_rss(title, date, url, output_rss_file.to_string());
-            let file = File::create(output_rss_file).unwrap();
-            feed.write_to(file)?;
-        } else {
-            create_mp_rss(title, date, url, output_rss_file.to_string())?;
-        }
-    }
+    let mp_index_str = read_to_string("mp_current_index.txt")?;
+    let mut mp_index = mp_index_str
+        .split_whitespace()
+        .next()
+        .unwrap()
+        .parse::<usize>()?;
+
+    let mp = &mp_file.morning_papers[mp_index];
+    let title = &mp.title;
+    let url = &mp.url;
+    let re = Regex::new(
+        "https://blog.acolyer.org/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2}).*/",
+    )?;
+    let caps = re.captures(url.as_str()).unwrap();
+    let year = caps["year"].to_string();
+    let month = caps["month"].to_string();
+    let day = caps["day"].to_string();
+    let date = format!("{year}-{month}-{day}T00:00:00+00:00");
+    create_mp_rss(
+        title.clone(),
+        date,
+        url.clone(),
+        output_rss_file.to_string(),
+    )?;
+
+    // increment mp index
+    mp_index += 1;
+    write("mp_current_index.txt", mp_index.to_string())?;
 
     Ok(())
 }

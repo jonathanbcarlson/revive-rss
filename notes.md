@@ -6,10 +6,15 @@
 ## TODO
 
 - [ ] add dates to generated json
-- [ ] generate RSS feed
+- [x] generate RSS feed
   - note `mp_url/feed` returns the comments not the RSS feed
 - [ ] update RSS feed on a daily basis (using Github actions maybe?)
-  - validate RSS using [Feed validation service](https://validator.w3.org/feed/check.cgi)
+  - can validate RSS using [Feed validation service](https://validator.w3.org/feed/check.cgi)
+  - how to allow anyone else to start from the beginning of Morning Paper?
+
+## issues
+
+- one issue is that if you miss an article then by the next day the XML file will be updated to a new one and you won't be able to see it
 
 ## sanity check
 
