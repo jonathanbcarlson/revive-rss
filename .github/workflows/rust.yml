@@ -2,6 +2,7 @@ name: Rust
 
 on:
   schedule:
+  # run at 07 PST everyday
     - cron: "0 15 * * *"
   workflow_dispatch:
     inputs:
@@ -25,6 +26,3 @@ jobs:
     - name: Check MP_rss
       run: cat morning_paper_feed.xml
     - uses: stefanzweifel/git-auto-commit-action@v4
-      with:
-      commit_message: Update MP_rss
-      
