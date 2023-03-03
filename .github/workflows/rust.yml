@@ -29,4 +29,7 @@ jobs:
       run: cat morning_paper_feed.xml
     - uses: stefanzweifel/git-auto-commit-action@v4
       with:
-        commit_message: Automatic
+        commit_message: Update Morning Paper feed
+        commit_user_name: Revive RSS Bot
+        commit_user_email: reviverssbot@gmail.com
+        commit_author: Revive RSS Bot <reviverssbot@gmail.com>
