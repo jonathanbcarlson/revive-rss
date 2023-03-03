@@ -19,9 +19,12 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Download mp_index
-      uses: actions/download-artifact@v3.0.2
+      # https://stackoverflow.com/a/65049722
+      uses: dawidd6/action-download-artifact@v2
       with:
+        github_token: ${{secrets.GITHUB_TOKEN}}
         name: MP_index
+        run_number: ${{github.event.number - 1}}
         path: mp_current_index.txt
     - name: Run
       run: cargo run --quiet
