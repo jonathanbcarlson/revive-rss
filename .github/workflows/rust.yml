@@ -21,8 +21,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.REVIVE_RSS_ACTION_PAT }}
     - name: Run
       run: cargo run --quiet
     - name: Check MP_rss
       run: cat morning_paper_feed.xml
     - uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: Automatic
