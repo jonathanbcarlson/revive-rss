@@ -13,32 +13,18 @@ env:
 
 jobs:
   update_MP:
-
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
 
     steps:
     - uses: actions/checkout@v3
-    - name: Download mp_index
-      # https://stackoverflow.com/a/65049722
-      uses: dawidd6/action-download-artifact@v2
-      with:
-        github_token: ${{secrets.GITHUB_TOKEN}}
-        name: MP_index
-        run_number: ${{github.event.number - 1}}
-        path: mp_current_index.txt
     - name: Run
       run: cargo run --quiet
-    - name: Upload mp_index
-      uses: actions/upload-artifact@v3
-      with:
-        name: MP_index
-        path: mp_current_index.txt
-    - name: Check MP_index
-      run: cat mp_current_index.txt
-    - name: Upload mp_rss
-      uses: actions/upload-artifact@v3
-      with:
-        name: mp_rss
-        path: morning_paper_feed.xml
     - name: Check MP_rss
       run: cat morning_paper_feed.xml
+    - uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+      commit_message: Update MP_rss
+      
