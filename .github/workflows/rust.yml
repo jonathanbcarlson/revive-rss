@@ -18,6 +18,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Download mp_index
+      uses: actions/download-artifact@v3.0.2
+      with:
+        name: MP_index
+        path: mp_current_index.txt
     - name: Run
       run: cargo run --quiet
     - name: Upload mp_index
