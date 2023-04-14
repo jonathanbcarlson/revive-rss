@@ -3,11 +3,10 @@ use chrono::{DateTime, Local};
 use regex::Regex;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
-use serde_json::{json, ser::PrettyFormatter};
-use std::env;
+use serde_json::json;
 use std::fmt;
 use std::fs::{read_to_string, write, File, OpenOptions};
-use std::io::{BufReader, Write};
+use std::io::BufReader;
 use std::vec;
 use tokio;
 
@@ -30,6 +29,7 @@ struct MPFile {
 }
 
 #[tokio::main]
+#[allow(dead_code)]
 async fn create_mp_json() -> Result<(), Box<dyn std::error::Error>> {
     let mut search_for_url =
         "https://blog.acolyer.org/2014/10/08/a-storm-drain-for-the-morning-paper/".to_string();
@@ -138,6 +138,7 @@ fn create_mp_rss(
     Ok(())
 }
 
+#[allow(dead_code)]
 fn add_entry_to_mp_rss(title: String, date: String, url: String, output_rss_file: String) -> Feed {
     // if file exists, read it in, add entry, write it out
     let file = File::open(output_rss_file).unwrap();
