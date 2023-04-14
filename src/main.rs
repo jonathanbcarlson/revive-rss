@@ -1,5 +1,6 @@
 use atom_syndication::{EntryBuilder, Feed, FeedBuilder, LinkBuilder, TextBuilder};
 use chrono::{DateTime, Local};
+use html_escape;
 use regex::Regex;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
@@ -93,6 +94,7 @@ async fn create_mp_json() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+#[allow(dead_code)]
 fn create_mp_rss(
     title: String,
     date: String,
@@ -138,10 +140,14 @@ fn create_mp_rss(
     Ok(())
 }
 
-#[allow(dead_code)]
-fn add_entry_to_mp_rss(title: String, date: String, url: String, output_rss_file: String) -> Feed {
+fn add_entry_to_mp_rss(
+    title: String,
+    date: String,
+    url: String,
+    output_rss_file: String,
+) -> Result<(), Box<dyn std::error::Error>> {
     // if file exists, read it in, add entry, write it out
-    let file = File::open(output_rss_file).unwrap();
+    let file = File::open(output_rss_file.clone()).unwrap();
     let mut feed = Feed::read_from(BufReader::new(file)).unwrap();
 
     let author = atom_syndication::PersonBuilder::default()
@@ -155,7 +161,7 @@ fn add_entry_to_mp_rss(title: String, date: String, url: String, output_rss_file
     let entry_url = LinkBuilder::default().href(url.to_string()).build();
     let entry_title = TextBuilder::default().value(title.to_string()).build();
 
-    let date = DateTime::parse_from_str(&date, "%Y-%m-%dT%H:%M:%S%z").unwrap();
+    let date = DateTime::parse_from_rfc3339(&date).unwrap();
 
     let entry = EntryBuilder::default()
         .title(entry_title.clone())
@@ -166,8 +172,15 @@ fn add_entry_to_mp_rss(title: String, date: String, url: String, output_rss_file
         .content(content.clone())
         .build();
 
+    // set number of entries to 10
+    if feed.entries.len() > 9 {
+        // remove first entry
+        feed.entries.drain(0..1);
+    }
     feed.entries.push(entry);
-    feed
+    let rss_file = File::create(output_rss_file.clone())?;
+    feed.write_to(rss_file)?;
+    Ok(())
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -184,7 +197,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .parse::<usize>()?;
 
     let mp = &mp_file.morning_papers[mp_index];
-    let title = &mp.title;
+    let mut title = mp.title.clone();
+    title = html_escape::decode_html_entities(&title).to_string();
     let url = &mp.url;
     let re = Regex::new(
         "https://blog.acolyer.org/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2}).*/",
@@ -195,7 +209,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mp_day = caps["day"].to_string();
     // use current date to show up on feed
     let current_date = Local::now().to_rfc3339();
+    /*
     create_mp_rss(
+        title.clone(),
+        current_date.clone(),
+        url.clone(),
+        output_rss_file.to_string(),
+    )?;
+    */
+
+    add_entry_to_mp_rss(
         title.clone(),
         current_date.clone(),
         url.clone(),
