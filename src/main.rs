@@ -1,9 +1,10 @@
 use atom_syndication::{EntryBuilder, Feed, FeedBuilder, LinkBuilder, TextBuilder};
-use chrono::DateTime;
+use chrono::{DateTime, Local};
 use regex::Regex;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, ser::PrettyFormatter};
+use std::env;
 use std::fmt;
 use std::fs::{read_to_string, write, File, OpenOptions};
 use std::io::{BufReader, Write};
@@ -109,7 +110,7 @@ fn create_mp_rss(
     let entry_url = LinkBuilder::default().href(url.to_string()).build();
     let entry_title = TextBuilder::default().value(title.to_string()).build();
 
-    let date = DateTime::parse_from_str(&date, "%Y-%m-%dT%H:%M:%S%z").unwrap();
+    let date = DateTime::parse_from_rfc3339(&date).unwrap();
 
     let entry = EntryBuilder::default()
         .title(entry_title.clone())
@@ -184,14 +185,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mp = &mp_file.morning_papers[mp_index];
     let title = &mp.title;
     let url = &mp.url;
-    let re = Regex::new(
-        "https://blog.acolyer.org/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2}).*/",
-    )?;
-    let caps = re.captures(url.as_str()).unwrap();
-    let year = caps["year"].to_string();
-    let month = caps["month"].to_string();
-    let day = caps["day"].to_string();
-    let date = format!("{year}-{month}-{day}T00:00:00+00:00");
+    // use current date to show up on feed
+    let date = Local::now().to_rfc3339();
     create_mp_rss(
         title.clone(),
         date,
@@ -199,7 +194,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         output_rss_file.to_string(),
     )?;
 
-    // increment mp index
+    env::set_var("MP_TITLE", title.clone());
+    // write current index so can reuse for the next day
     mp_index += 1;
     write("mp_current_index.txt", mp_index.to_string())?;
 
