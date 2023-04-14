@@ -186,18 +186,25 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mp = &mp_file.morning_papers[mp_index];
     let title = &mp.title;
     let url = &mp.url;
+    let re = Regex::new(
+        "https://blog.acolyer.org/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2}).*/",
+    )?;
+    let caps = re.captures(url.as_str()).unwrap();
+    let mp_year = caps["year"].to_string();
+    let mp_month = caps["month"].to_string();
+    let mp_day = caps["day"].to_string();
     // use current date to show up on feed
-    let date = Local::now().to_rfc3339();
+    let current_date = Local::now().to_rfc3339();
     create_mp_rss(
         title.clone(),
-        date,
+        current_date.clone(),
         url.clone(),
         output_rss_file.to_string(),
     )?;
 
     // Use output to set github action environment variable
     // which is used for commit message
-    println!("'{title}'");
+    println!("'{title}' from {mp_year}-{mp_month}-{mp_day}");
     // write current index so can reuse for the next day
     mp_index += 1;
     write("mp_current_index.txt", mp_index.to_string())?;
