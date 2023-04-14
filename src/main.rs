@@ -194,7 +194,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         output_rss_file.to_string(),
     )?;
 
-    env::set_var("MP_TITLE", title.clone());
+    // Use output to set github action environment variable
+    // which is used for commit message
+    println!("'{title}'");
     // write current index so can reuse for the next day
     mp_index += 1;
     write("mp_current_index.txt", mp_index.to_string())?;
